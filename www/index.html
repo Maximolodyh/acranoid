@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Arkanoid</title>
+    <link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+    <div class="layout">
+        <header class="header">
+            <h1>Arkanoid</h1>
+            <p class="subtitle">Solo · Duo · Versus</p>
+        </header>
+
+        <main class="game-area">
+            <div id="modeSelect" class="lobby">
+                <div class="lobby-card lobby-card-wide">
+                    <h2>Выберите режим</h2>
+                    <p class="lobby-hint">Solo — один игрок. Duo — кооператив. Versus — соревнование 1 на 1.</p>
+
+                    <div class="mode-grid">
+                        <button type="button" class="mode-card" data-mode="solo">
+                            <strong>Solo</strong>
+                            <span>1 игрок, классический Arkanoid</span>
+                        </button>
+                        <button type="button" class="mode-card" data-mode="coop">
+                            <strong>Duo</strong>
+                            <span>2 игрока вместе против блоков</span>
+                        </button>
+                        <button type="button" class="mode-card" data-mode="versus">
+                            <strong>Versus</strong>
+                            <span>2 игрока: платформы сверху и снизу, у каждого свой мяч</span>
+                        </button>
+                    </div>
+
+                    <div class="quick-join">
+                        <h3>Уже есть код комнаты?</h3>
+                        <p class="lobby-hint">Введите код и подключитесь сразу — выбирать режим не нужно.</p>
+
+                        <label class="field field-compact">
+                            <span>Ваше имя</span>
+                            <input id="quickJoinNameInput" type="text" maxlength="24" placeholder="Player" autocomplete="nickname">
+                        </label>
+
+                        <div class="join-row">
+                            <input id="quickJoinCodeInput" type="text" maxlength="6" placeholder="Код комнаты" autocomplete="off">
+                            <button id="quickJoinButton" type="button">Войти</button>
+                        </div>
+
+                        <p id="modeSelectStatus" class="lobby-status"></p>
+                    </div>
+                </div>
+            </div>
+
+            <div id="lobby" class="lobby hidden">
+                <div class="lobby-card">
+                    <button id="backToModesButton" type="button" class="text-button">← Назад к режимам</button>
+                    <h2 id="lobbyModeTitle">Настройка игры</h2>
+                    <p id="lobbyModeHint" class="lobby-hint"></p>
+
+                    <label class="field">
+                        <span>Ваше имя</span>
+                        <input id="playerNameInput" type="text" maxlength="24" placeholder="Player" autocomplete="nickname">
+                    </label>
+
+                    <div class="field">
+                        <span>Скорость мяча</span>
+                        <div class="speed-options" id="speedOptions">
+                            <label class="speed-option">
+                                <input type="radio" name="ballSpeed" value="easy" checked>
+                                <span>Easy (1 блок/сек)</span>
+                            </label>
+                            <label class="speed-option">
+                                <input type="radio" name="ballSpeed" value="medium">
+                                <span>Medium (2 блока/сек)</span>
+                            </label>
+                            <label class="speed-option">
+                                <input type="radio" name="ballSpeed" value="hard">
+                                <span>Hard (3 блока/сек)</span>
+                            </label>
+                        </div>
+                        <p id="speedHint" class="field-hint">Easy — 1 ширина блока в секунду.</p>
+                    </div>
+
+                    <div id="multiplayerActions" class="lobby-actions">
+                        <button id="createRoomButton" type="button">Создать комнату</button>
+                        <div class="join-row">
+                            <input id="roomCodeInput" type="text" maxlength="6" placeholder="Код комнаты">
+                            <button id="joinRoomButton" type="button">Войти</button>
+                        </div>
+                    </div>
+
+                    <div id="soloActions" class="lobby-actions hidden">
+                        <button id="startSoloButton" type="button">Начать игру</button>
+                    </div>
+
+                    <p id="lobbyStatus" class="lobby-status"></p>
+                </div>
+            </div>
+
+            <div id="waitingRoom" class="waiting-room hidden">
+                <div class="lobby-card">
+                    <h2>Комната <span id="roomCodeLabel">----</span></h2>
+                    <p id="roomSettingsLabel" class="room-settings"></p>
+                    <p id="waitingMessage">Ожидание второго игрока...</p>
+                    <ul id="playersList" class="players-list"></ul>
+                    <p id="countdownLabel" class="countdown-label hidden"></p>
+                </div>
+            </div>
+
+            <canvas id="gameCanvas" class="hidden" width="800" height="600"></canvas>
+
+            <div id="overlay" class="overlay hidden">
+                <div class="overlay-card">
+                    <h2 id="overlayTitle">Arkanoid</h2>
+                    <p id="overlayMessage">Разбейте все блоки!</p>
+                    <button id="startButton" type="button">Продолжить</button>
+                </div>
+            </div>
+        </main>
+
+        <aside class="sidebar">
+            <section class="panel">
+                <h2>Управление</h2>
+                <ul id="controlsHelp">
+                    <li><kbd>←</kbd> <kbd>→</kbd> или <kbd>A</kbd> <kbd>D</kbd> — платформа</li>
+                    <li><kbd>Space</kbd> — пуск мяча</li>
+                    <li>Кнопка «Пуск мяча» — когда мяч на платформе</li>
+                </ul>
+                <button id="launchBallButton" type="button" class="launch-button hidden">Пуск мяча</button>
+                <button id="surrenderButton" type="button" class="surrender-button hidden">Сдаться</button>
+            </section>
+
+            <section class="panel">
+                <h2>Сессия</h2>
+                <p id="sessionInfo" class="session-info">Выберите режим игры</p>
+            </section>
+
+            <section class="panel">
+                <h2>Таблица рекордов</h2>
+                <ol id="scoreList" class="score-list"></ol>
+            </section>
+        </aside>
+    </div>
+
+    <script src="/js/config.js"></script>
+    <script src="/js/game.js"></script>
+</body>
+</html>

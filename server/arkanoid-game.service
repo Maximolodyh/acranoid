@@ -1,0 +1,16 @@
+[Unit]
+Description=Arkanoid WebSocket Game Server
+After=network.target
+
+[Service]
+Type=simple
+User=www-data
+WorkingDirectory=/opt/arkanoid-server
+ExecStart=/usr/bin/node /opt/arkanoid-server/server.js
+Restart=on-failure
+RestartSec=5
+Environment=HOST=127.0.0.1
+Environment=PORT=3001
+
+[Install]
+WantedBy=multi-user.target
